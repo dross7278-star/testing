@@ -4,7 +4,7 @@ A small Python portfolio exercise: fix and optimize a deliberately broken
 paginated API client. No credentials, external API, runtime dependencies, real
 sleep, or network access are needed to run it.
 
-**This is the buggy starter, not a completed solution.** The simulator is the
+**This is a work-in-progress exercise, not a completed solution.** The simulator is the
 test fixture; contributors should fix the client without weakening that fixture
 or the acceptance assertions.
 
@@ -23,6 +23,17 @@ The initial suite has 12 passing fixture/baseline tests and 11 explicitly marked
 expected failures. Expected failures are known bugs, **not proof of correctness**.
 As each bug is fixed, remove its `@unittest.expectedFailure` decorator. An
 unexpected success makes unittest fail until that marker is removed.
+
+### Verified progress
+
+The original buggy starter is preserved in the first Git commit.
+
+Step 1 fixes terminal-page loss by collecting each page before checking its
+continuation cursor. Single-page, multi-page, and empty-intermediate-page
+regressions now pass. The current suite has 15 passing tests and 9 expected
+failures. The benchmark returns all 1,000 records with 10 requests, but still
+takes 10.1 virtual seconds; retry, state isolation, deduplication, and performance
+work remain intentionally unfinished.
 
 Run just the contributor contract:
 

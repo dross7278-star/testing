@@ -24,7 +24,7 @@ class ApiClient:
                 self.service.clock.sleep(0.1)
                 continue
             self.service.clock.sleep(1.0)
+            self._items.extend(page.items)
             if page.next_cursor is None:
                 return self._items
-            self._items.extend(page.items)
             cursor = page.next_cursor

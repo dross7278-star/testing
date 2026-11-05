@@ -5,18 +5,29 @@ from rate_client.simulator import ApiError, FakeService, Item, VirtualClock
 
 
 class ClientContractTests(unittest.TestCase):
-    @unittest.expectedFailure
     def test_includes_terminal_page(self) -> None:
         service = FakeService([[Item(1, "a")]], VirtualClock())
         self.assertEqual(ApiClient(service).fetch_all(), [Item(1, "a")])
 
-    @unittest.expectedFailure
     def test_follows_cursor_through_empty_pages(self) -> None:
         service = FakeService([[Item(1, "a")], [], [Item(2, "b")]], VirtualClock())
         self.assertEqual(
             ApiClient(service).fetch_all(), [Item(1, "a"), Item(2, "b")]
         )
         self.assertEqual(len(service.attempts), 3)
+
+    def test_includes_all_pages_in_service_order(self) -> None:
+        service = FakeService(
+            [[Item(3, "a")], [Item(1, "b")], [Item(2, "c")]], VirtualClock()
+        )
+        self.assertEqual(
+            ApiClient(service).fetch_all(),
+            [Item(3, "a"), Item(1, "b"), Item(2, "c")],
+        )
+        self.assertEqual(
+            [attempt.cursor for attempt in service.attempts],
+            [None, "page:1", "page:2"],
+        )
 
     @unittest.expectedFailure
     def test_deduplicates_by_id_preserving_first_seen_order_and_value(self) -> None:
