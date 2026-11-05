@@ -25,8 +25,9 @@ class BaselineTests(unittest.TestCase):
         self.assertEqual(len(service.attempts), 3)
 
     def test_invalid_retry_budget(self) -> None:
-        with self.assertRaises(ValueError):
-            ApiClient(FakeService([], VirtualClock()), max_attempts=0)
+        for budget in (0, -1, True):
+            with self.subTest(budget=budget), self.assertRaises(ValueError):
+                ApiClient(FakeService([], VirtualClock()), max_attempts=budget)
 
     def test_single_attempt_propagates_error_without_sleeping(self) -> None:
         clock = VirtualClock()
