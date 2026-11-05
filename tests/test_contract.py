@@ -90,7 +90,6 @@ class ClientContractTests(unittest.TestCase):
         self.assertEqual(caught.exception.status, 400)
         self.assertEqual(len(service.attempts), 1)
 
-    @unittest.expectedFailure
     def test_results_do_not_leak_between_calls_or_through_returned_lists(self) -> None:
         service = FakeService([[Item(1, "a")], []], VirtualClock())
         client = ApiClient(service)
@@ -98,7 +97,6 @@ class ClientContractTests(unittest.TestCase):
         first.append(Item(999, "caller mutation"))
         self.assertEqual(client.fetch_all(), [Item(1, "a")])
 
-    @unittest.expectedFailure
     def test_failed_call_does_not_contaminate_next_call(self) -> None:
         service = FakeService(
             [[Item(1, "a")], []],
@@ -109,6 +107,27 @@ class ClientContractTests(unittest.TestCase):
         with self.assertRaises(ApiError):
             client.fetch_all()
         self.assertEqual(client.fetch_all(), [Item(1, "a")])
+
+    def test_repeated_calls_return_distinct_complete_lists(self) -> None:
+        service = FakeService([[Item(1, "a")], [Item(2, "b")]], VirtualClock())
+        client = ApiClient(service)
+        first = client.fetch_all()
+        second = client.fetch_all()
+        self.assertIsNot(first, second)
+        self.assertEqual(first, [Item(1, "a"), Item(2, "b")])
+        self.assertEqual(second, first)
+        second.clear()
+        self.assertEqual(first, [Item(1, "a"), Item(2, "b")])
+        self.assertEqual(client.fetch_all(), first)
+        self.assertEqual(len(service.attempts), 6)
+
+    def test_empty_calls_return_distinct_lists(self) -> None:
+        client = ApiClient(FakeService([], VirtualClock()))
+        first = client.fetch_all()
+        second = client.fetch_all()
+        self.assertIsNot(first, second)
+        self.assertEqual(first, [])
+        self.assertEqual(second, [])
 
     @unittest.expectedFailure
     def test_no_unnecessary_sleep_on_successful_requests(self) -> None:

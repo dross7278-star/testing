@@ -30,10 +30,15 @@ The original buggy starter is preserved in the first Git commit.
 
 Step 1 fixes terminal-page loss by collecting each page before checking its
 continuation cursor. Single-page, multi-page, and empty-intermediate-page
-regressions now pass. The current suite has 15 passing tests and 9 expected
-failures. The benchmark returns all 1,000 records with 10 requests, but still
-takes 10.1 virtual seconds; retry, state isolation, deduplication, and performance
-work remain intentionally unfinished.
+regressions now pass.
+
+Step 2 isolates results in a fresh local list for each fetch. Repeated calls,
+caller mutations, empty results, and partial failed fetches cannot contaminate
+later calls or previously returned lists. Four isolation regressions pass.
+
+The current suite has 19 passing tests and 7 expected failures. The benchmark
+returns all 1,000 records with 10 requests, but still takes 10.1 virtual seconds;
+retry, deduplication, and performance work remain intentionally unfinished.
 
 Run just the contributor contract:
 

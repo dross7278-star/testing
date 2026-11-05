@@ -9,9 +9,9 @@ class ApiClient:
             raise ValueError("max_attempts must be positive")
         self.service = service
         self.max_attempts = max_attempts
-        self._items: list[Item] = []
 
     def fetch_all(self) -> list[Item]:
+        items: list[Item] = []
         cursor: str | None = None
         failures = 0
         while True:
@@ -24,7 +24,7 @@ class ApiClient:
                 self.service.clock.sleep(0.1)
                 continue
             self.service.clock.sleep(1.0)
-            self._items.extend(page.items)
+            items.extend(page.items)
             if page.next_cursor is None:
-                return self._items
+                return items
             cursor = page.next_cursor
